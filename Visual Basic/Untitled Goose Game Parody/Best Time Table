@@ -1,0 +1,112 @@
+Public Class Best_Time_Table
+	Private Sub Best_Time_Table_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    	BestTimeFilePath = CurDir() & "\BestTimeFile.dat"
+    	FileOpen(1, BestTimeFilePath, OpenMode.Random, , , Len(BestTimeRecord))
+    	lblNumberOfRecords.Text = LOF(1) / Len(BestTimeRecord)
+    	If lblNumberOfRecords.Text > 0 Then ReadRecord()
+    	DisplayTimeData()
+	End Sub
+	Public Sub DisplayTimeData()
+    	Dim i As Integer
+    	lstReport.Items.Clear()
+    	lstReport.Items.Add("Best times :")
+    	lstReport.Items.Add("=================")
+    	lstReport.Items.Add("")
+    	lstReport.Items.Add("Name" & Space(25) & "Date" & Space(10) & "Time")
+    	lstReport.Items.Add("----" & Space(25) & "-----" & Space(10) & "------")
+    	For i = 1 To lblNumberOfRecords.Text
+        	FileGet(1, BestTimeRecord, i)
+        	lstReport.Items.Add(BestTimeRecord.PlayerName & Space(30 - Len(BestTimeRecord.PlayerName)) & BestTimeRecord.GameDate & Space(12) & BestTimeRecord.GameTime)
+    	Next i
+	End Sub
+	Private Sub btnSave_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSave.Click
+    	SaveRecord()
+    	DisplayTimeData()
+	End Sub
+	Private Sub SaveRecord()
+    	BestTimeRecord.PlayerName = txtName.Text
+    	BestTimeRecord.GameDate = txtGameDate.Text
+    	BestTimeRecord.GameTime = txtTime.Text
+
+    	FilePut(1, BestTimeRecord, CInt(lblRecordNumber.Text))
+    	lblNumberOfRecords.Text = LOF(1) / Len(BestTimeRecord)
+	End Sub
+	Public Sub ReadRecord()
+    	FileGet(1, BestTimeRecord, CInt(lblRecordNumber.Text))
+    	txtName.Text = BestTimeRecord.PlayerName
+    	txtGameDate.Text = BestTimeRecord.GameDate
+    	txtTime.Text = BestTimeRecord.GameTime
+	End Sub
+	Private Sub btnAdd_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAdd.Click
+    	lblRecordNumber.Text = lblNumberOfRecords.Text + 1
+    	txtName.Text = ""
+    	txtGameDate.Text = ""
+    	txtTime.Text = ""
+
+    	txtName.Focus()
+	End Sub
+	Private Sub DeleteFile()
+    	If lblNumberOfRecords.Text > 0 Then
+        	FileClose(1)
+        	Kill(BestTimeFilePath)
+        	FileOpen(1, BestTimeFilePath, OpenMode.Random, , , Len(BestTimeRecord))
+        	lblRecordNumber.Text = 1
+        	lblNumberOfRecords.Text = 0
+    	End If
+    	DisplayTimeData()
+    	txtName.Text = ""
+    	txtGameDate.Text = ""
+    	txtTime.Text = ""
+
+    	txtName.Focus()
+	End Sub
+	Private Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
+    	SaveRecord()
+    	lblRecordNumber.Text = lblRecordNumber.Text + 1
+    	If Val(lblRecordNumber.Text) > Val(lblNumberOfRecords.Text) Then
+        	lblRecordNumber.Text = lblNumberOfRecords.Text
+    	End If
+    	ReadRecord()
+	End Sub
+	Private Sub btnPrevious_Click(sender As Object, e As EventArgs) Handles btnPrevious.Click
+    	SaveRecord()
+    	lblRecordNumber.Text = lblRecordNumber.Text - 1
+    	If lblRecordNumber.Text < 1 Then
+        	lblRecordNumber.Text = 1
+    	End If
+    	ReadRecord()
+	End Sub
+	Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+    	If MsgBox("Are you really really really sure", MsgBoxStyle.YesNo, "Delete File") = vbYes Then
+        	DeleteFile()
+    	End If
+    	DisplayTimeData()
+	End Sub
+	Private Sub btnSortByName_Click(sender As Object, e As EventArgs) Handles btnSortByName.Click
+    	If lblNumberOfRecords.Text > 1 Then
+        	Dim i As Integer
+        	Dim j As Integer
+        	For i = 1 To lblNumberOfRecords.Text - 1
+            	For j = 1 To lblNumberOfRecords.Text - 1
+                	FileGet(1, BestTimeRecord, j)
+                	FileGet(1, BestTimeRecord2, j + 1)
+                	If BestTimeRecord.GameTime > BestTimeRecord2.GameTime Then
+                    	FilePut(1, BestTimeRecord, j + 1)
+                    	FilePut(1, BestTimeRecord2, j)
+                	End If
+            	Next j
+        	Next i
+        	DisplayTimeData()
+        	lblRecordNumber.Text = 1
+        	ReadRecord()
+    	End If
+	End Sub
+	Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
+    	Me.Hide()
+    	frmMainMenu.Show()
+	End Sub
+	Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
+    	My.Computer.Audio.Play(My.Resources.honk_sound, AudioPlayMode.Background)
+    	MemeForm.Show()
+	End Sub
+End Class
