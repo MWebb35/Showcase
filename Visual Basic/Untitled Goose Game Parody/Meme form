@@ -1,0 +1,18 @@
+Public Class MemeForm
+	Private Sub MemeForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    	Randomize()
+    	Dim number As Integer
+    	number = Int(Rnd() * 5) + 1
+    	If number = 1 Then
+        	pctmeme.BackgroundImage = pctMeme1.BackgroundImage
+    	ElseIf number = 2 Then
+        	pctmeme.BackgroundImage = pctMeme2.BackgroundImage
+    	ElseIf number = 3 Then
+        	pctmeme.BackgroundImage = pctMeme3.BackgroundImage
+    	ElseIf number = 4 Then
+        	pctmeme.BackgroundImage = pctMeme4.BackgroundImage
+    	ElseIf number = 5 Then
+        	pctmeme.BackgroundImage = pctMeme5.BackgroundImage
+    	End If
+	End Sub
+End Class
