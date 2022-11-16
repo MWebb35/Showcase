@@ -1,0 +1,10 @@
+Public Class Level_Selection
+	Private Sub rdbLevel1_CheckedChanged(sender As Object, e As EventArgs) Handles rdbLevel1.CheckedChanged
+    	Me.Hide()
+    	Form1.Show()
+	End Sub
+	Private Sub rdbLevel2_CheckedChanged(sender As Object, e As EventArgs) Handles rdbLevel2.CheckedChanged
+    	Me.Hide()
+    	Level_2.Show()
+	End Sub
+End Class
