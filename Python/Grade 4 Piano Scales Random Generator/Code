@@ -1,0 +1,20 @@
+import random
+scales = ['B major','B flat major','E flat major','D flat major','A flat major','C# minor harmonic','G# minor harmonic','C minor harmonic','F minor harmonic','F major contrary motion','E flat major contrary motion','D minor harmonic contrary motion','C minor harmonic contrary motion','Chromatic','B major arpeggio','B flat major arpeggio','E flat major arpeggio','A flat major arpeggio','D flat major arpeggio','C# minor arpeggio','G# minor arpeggio','C minor arpeggio','F minor arpeggio']
+
+hands = ['Left hand','Right hand','Both hands','Both hands']
+
+scales = random.choice(scales)
+hands = random.choice(hands)
+
+if scales == "Chromatic":
+  start = ["C#","D#","F#","G#","A#"]
+  start = random.choice(start)
+  print(scales + "\n" + start + "\n" + hands)
+  exit()
+
+if "motion" in scales:
+  hands = ('Both hands')
+  print(scales + "\n" + hands)
+  exit()
+
+print(scales + "\n" + hands)
