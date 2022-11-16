@@ -1,0 +1,230 @@
+Public Class Level_2
+	Dim NumberOfBushes As Integer = 30
+	Dim BushesEaten As Integer = 0
+	Dim EndOfGame As String
+	Dim GameTime As Single = 0
+	Dim StartOfGame As Boolean = True
+	Dim ManDirX As Integer = 0
+	Dim ManDirY As Integer = 0
+	Dim ZombieDirX As Integer = 0
+	Dim ZombieDirY As Integer = 0
+	Dim Zombie2DirX As Integer = 0
+	Dim zombie2DirY As Integer = 0
+	Private Sub Level_2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    	pctMan.Left = 500
+    	pctMan.Top = 240
+    	pctZombie.Left = 260
+    	pctZombie.Top = 240
+    	pctZombie2.Left = 260
+    	pctZombie2.Top = 420
+    	Me.Height = 700
+    	Me.Width = 1000
+	End Sub
+	Private Sub frmMainMenu_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+    	Dim Bush As PictureBox() = {pctBush0, pctBush1, pctBush2, pctBush3, pctBush4, pctBush5, pctBush6, pctBush7, pctBush8, pctBush9, pctBush10, pctBush11, pctBush12, pctBush13, pctBush14, pctBush15, pctBush16, pctBush17, pctBush18, pctBush19, pctBush20, pctBush21, pctBush22, pctBush23, pctBush24, pctBush25, pctBush26, pctBush27, pctBush28, pctBush29}
+    	If StartOfGame = True Then
+        	StartOfGame = False
+        	For i = 0 To NumberOfBushes - 1
+            	Bush(i).Visible = True
+        	Next i
+        	pctMan.Visible = True
+        	pctZombie.Visible = True
+        	pctZombie2.Visible = True
+        	tmrGameTime.Enabled = True
+        	tmrMan.Enabled = True
+        	tmrZombie.Enabled = True
+        	lblInstructions.Visible = False
+        	lblMessage.Visible = False
+    	End If
+    	'### RECOGNISE KEY PRESS AND MOVE MAN ###
+    	'### S-LEFT D-RIGHT K-UP M-DOWN   	###
+    	If e.KeyCode = Asc("A") Then
+        	pctMan.BackgroundImage = PctManLeft.BackgroundImage
+        	ManDirX = -2
+        	ManDirY = 0
+    	Else
+        	If e.KeyCode = Asc("D") Then
+            	pctMan.BackgroundImage = pctMan.BackgroundImage
+            	ManDirX = 2
+            	ManDirY = 0
+        	Else
+            	If e.KeyCode = Asc("W") Then
+                	pctMan.BackgroundImage = pctManUp.BackgroundImage
+                	ManDirX = 0
+                	ManDirY = -2
+            	Else
+                	If e.KeyCode = Asc("S") Then
+                    	pctMan.BackgroundImage = PctManDown.BackgroundImage
+                    	ManDirX = 0
+                    	ManDirY = 2
+                	Else
+                    	If e.KeyCode = Asc("H") Then
+                        	My.Computer.Audio.Play(My.Resources.honk_sound, AudioPlayMode.Background)
+                    	End If
+                	End If
+            	End If
+        	End If
+    	End If
+    	If e.KeyCode = Asc("R") Then
+        	StartOfGame = True
+        	GameTime = 0
+        	BushesEaten = 0
+        	Me.Text = "## GO GO GOOSE ##           	GAME TIME " & Format(GameTime, "0.0") & "   	ITEMS RETURNED " & BushesEaten
+        	tmrGameTime.Enabled = False
+        	tmrMan.Enabled = False
+        	tmrZombie.Enabled = False
+        	pctMan.Visible = False
+        	pctMan.BackgroundImage = pctMan.BackgroundImage
+        	pctZombie.Visible = False
+        	pctZombie.BackgroundImage = pctZombie.BackgroundImage
+        	lblInstructions.Visible = True
+        	lblMessage.Visible = True
+        	pctMan.Left = 590
+        	pctMan.Top = 240
+        	pctZombie.Left = 260
+        	pctZombie.Top = 240
+        	pctZombie2.Left = 260
+        	pctZombie2.Top = 420
+        	lblMessage.Text = "W - Up A - Left D - Right S - Down H - Honk PRESS ANY KEY TO START"
+        	For i = 0 To NumberOfBushes - 1
+            	Bush(i).Visible = False
+        	Next i
+    	End If
+    	If e.KeyCode = Asc("M") Then
+        	Me.Hide()
+        	Best_Time_Table.Show()
+    	End If
+    	If e.KeyCode = Asc("Q") Then
+        	Me.Hide()
+        	frmMainMenu.Show()
+    	End If
+	End Sub
+	'### THIS SUBROUTINE CONTROLS THE MAN.                	###
+	'### EVERY TIME THE TIMER TICKS THE MAN MOVES.        	###
+	'### UP AND DOWN IS CONTROLLED BY ManDirY  (+1 OR -1).	###
+	'### LEFT AND RIGHT IS CONTROLLED BY ManDirX  (+1 OR -1). ###
+	Private Sub tmrMan_Tick(sender As Object, e As EventArgs) Handles tmrMan.Tick
+    	pctMan.Left += ManDirX * 10
+    	pctMan.Top += ManDirY * 10
+    	If pctMan.Left <= 0 Then pctMan.Left = 0
+    	If pctMan.Left >= Me.Width - 80 Then pctMan.Left = Me.Width - 80
+    	If pctMan.Top <= 0 Then pctMan.Top = 0
+    	If pctMan.Top >= Me.Height - 100 Then pctMan.Top = Me.Height - 100
+    	CheckIfManCaughtByZombie()
+    	CheckIfBushKillsMan()
+	End Sub
+
+	'### THIS SUBROUTINE CONTROLS THE ZOMBIE. 	###
+	'### THE ZOMBIE ALWAYS MOVES TOWARDS THE MAN. ###
+	Private Sub tmrZombie_Tick(sender As Object, e As EventArgs) Handles tmrZombie.Tick
+    	ZombieDirX = 0
+    	ZombieDirY = 0
+    	If pctMan.Left < pctZombie.Left Then
+        	pctZombie.BackgroundImage = pctZombieLeft.BackgroundImage
+        	ZombieDirX = -1
+    	End If
+    	If pctMan.Left > pctZombie.Left Then
+        	ZombieDirX = 1
+    	End If
+    	If pctMan.Top < pctZombie.Top Then
+        	pctZombie.BackgroundImage = pctZombieUp.BackgroundImage
+        	ZombieDirY = -1
+    	End If
+    	If pctMan.Top > pctZombie.Top Then
+        	pctZombie.BackgroundImage = pctZombieDown.BackgroundImage
+        	ZombieDirY = 1
+    	End If
+    	pctZombie.Left += ZombieDirX * 10
+    	pctZombie.Top += ZombieDirY * 10
+    	CheckIfManCaughtByZombie()
+    	CheckIfZombieEatsBush()
+	End Sub
+	Public Sub CheckIfManCaughtByZombie()
+    	If pctZombie.Left < pctMan.Left + 55 And pctZombie.Left > pctMan.Left - 55 And pctZombie.Top < pctMan.Top + 55 And pctZombie.Top > pctMan.Top - 55 Then
+        	EndOfGame = "THE VILLAGERS CAUGHT YOU - PRESS R"
+        	EndOfGameProcedure()
+    	ElseIf pctZombie2.Left < pctMan.Left + 55 And pctZombie2.Left > pctMan.Left - 55 And pctZombie2.Top < pctMan.Top + 55 And pctZombie2.Top > pctMan.Top - 55 Then
+        	EndOfGame = "THE VILLAGERS CAUGHT YOU - PRESS R"
+        	EndOfGameProcedure()
+    	End If
+	End Sub
+	Public Sub CheckIfBushKillsMan()
+    	Dim BushKillsMan As Boolean = False
+    	Dim Bush As PictureBox() = {pctBush0, pctBush1, pctBush2, pctBush3, pctBush4, pctBush5, pctBush6, pctBush7, pctBush8, pctBush9, pctBush10, pctBush11, pctBush12, pctBush13, pctBush14, pctBush15, pctBush16, pctBush17, pctBush18, pctBush19, pctBush20, pctBush21, pctBush22, pctBush23, pctBush24, pctBush25, pctBush26, pctBush27, pctBush28, pctBush29}
+    	For i = 0 To NumberOfBushes - 1
+        	If Bush(i).Visible = True And Bush(i).Left < pctMan.Left + 60 And Bush(i).Left > pctMan.Left - 60 And Bush(i).Top < pctMan.Top + 60 And Bush(i).Top > pctMan.Top - 60 Then
+            	BushKillsMan = True
+        	End If
+    	Next i
+    	If BushKillsMan Then
+        	EndOfGame = "YOU TRIPPED OVER AN OBJECT AND HURT YOUR FOOT (you deserve a boo-boo kiss)  - PRESS R"
+        	EndOfGameProcedure()
+    	End If
+	End Sub
+	Public Sub CheckIfZombieEatsBush()
+    	Dim Bush As PictureBox() = {pctBush0, pctBush1, pctBush2, pctBush3, pctBush4, pctBush5, pctBush6, pctBush7, pctBush8, pctBush9, pctBush10, pctBush11, pctBush12, pctBush13, pctBush14, pctBush15, pctBush16, pctBush17, pctBush18, pctBush19, pctBush20, pctBush21, pctBush22, pctBush23, pctBush24, pctBush25, pctBush26, pctBush27, pctBush28, pctBush29}
+    	'### THIS LOOP CHECKS EACH Bush TO SEE IF THE ZOMBIE HAS RUN OVER IT. ###
+    	For j = 1 To 2
+        	For i = 0 To NumberOfBushes - 1
+            	If Bush(i).Visible = True And Bush(i).Left < pctZombie.Left + 60 And Bush(i).Left > pctZombie.Left - 60 And Bush(i).Top < pctZombie.Top + 60 And Bush(i).Top > pctZombie.Top - 60 Then
+                	BushesEaten += 1
+                	Bush(i).Visible = False
+            	ElseIf Bush(i).Visible = True And Bush(i).Left < pctZombie2.Left + 60 And Bush(i).Left > pctZombie2.Left - 60 And Bush(i).top < pctZombie2.Top + 60 And Bush(i).Top > pctZombie2.Top - 60 Then
+                	BushesEaten += 1
+                	Bush(i).Visible = False
+            	End If
+        	Next i
+    	Next j
+    	If BushesEaten = NumberOfBushes Then
+        	EndOfGame = "THE VILLAGERS STOPPED CHASING YOU"
+        	EndOfGameProcedure()
+    	End If
+	End Sub
+	Public Sub EndOfGameProcedure()
+    	Dim Bush As PictureBox() = {pctBush0, pctBush1, pctBush2, pctBush3, pctBush4, pctBush5, pctBush6, pctBush7, pctBush8, pctBush9, pctBush10, pctBush11, pctBush12, pctBush13, pctBush14, pctBush15, pctBush16, pctBush17, pctBush18, pctBush19, pctBush20, pctBush21, pctBush22, pctBush23, pctBush24, pctBush25, pctBush26, pctBush27, pctBush28, pctBush29}
+    	Me.Text = "## GO GO GOOSE ##           	GAME TIME " & Format(GameTime, "0.0") & "   	BUSHES EATEN " & BushesEaten & "      	" & EndOfGame
+    	tmrGameTime.Enabled = False
+    	tmrMan.Enabled = False
+    	tmrZombie.Enabled = False
+    	If EndOfGame = "THE VILLAGERS STOPPED CHASING YOU" Then
+        	MsgBox("You resumed your activities as a horrible goose in " & Format(GameTime, "0.0") & " Secs.",, "## ZOMBIE CASTLE ##")
+    	Else
+        	pctMan.Visible = False
+    	End If
+    	For i = 0 To NumberOfBushes - 1
+        	Bush(i).Visible = False
+    	Next i
+    	lblInstructions.Visible = False
+    	lblMessage.Visible = True
+    	lblMessage.Text = EndOfGame
+
+	End Sub
+	Private Sub tmrGameTime_Tick(sender As Object, e As EventArgs) Handles tmrGameTime.Tick
+    	GameTime += 0.1
+    	Me.Text = "## GO GO GOOSE ##           	GAME TIME " & Format(GameTime, "0.0") & "   	ITEMS RETURNED " & BushesEaten
+	End Sub
+	Private Sub tmrZombie2_Tick(sender As Object, e As EventArgs) Handles tmrZombie2.Tick
+    	Zombie2DirX = 0
+    	zombie2DirY = 0
+    	If pctMan.Left < pctZombie2.Left Then
+        	pctZombie2.BackgroundImage = pctZombie2Left.BackgroundImage
+        	Zombie2DirX = -1
+    	End If
+    	If pctMan.Left > pctZombie2.Left Then
+        	Zombie2DirX = 1
+    	End If
+    	If pctMan.Top < pctZombie2.Top Then
+        	pctZombie2.BackgroundImage = pctZombie2Up.BackgroundImage
+        	zombie2DirY = -1
+    	End If
+    	If pctMan.Top > pctZombie2.Top Then
+        	pctZombie2.BackgroundImage = pctZombie2Down.BackgroundImage
+        	zombie2DirY = 1
+    	End If
+    	pctZombie2.Left += Zombie2DirX * 10
+    	pctZombie2.Top += zombie2DirY * 10
+    	CheckIfManCaughtByZombie()
+    	CheckIfZombieEatsBush()
+	End Sub
+End Class
+
