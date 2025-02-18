@@ -1,4 +1,4 @@
-##Smart Lamp##
+###Smart Lamp
 
 The intention behind this device was to make an accessible smart controller for people with mobility issues. This device could absolutely be used to give people with limited mobility more freedom within their homes, allowing them to turn on their non-smart from their phones. It acts as a smart device for anybody who would benefit from it, regardless of mobility, and can be easily modified to suit the needs of the user. For example, the non-smart device isn't limited to being a lamp and the dual-channel relay was built with the mindset that products can and will be changed out. This accessible product can be used in residential homes and within industry as a way to make workplaces more inclusive for all employees.
 
